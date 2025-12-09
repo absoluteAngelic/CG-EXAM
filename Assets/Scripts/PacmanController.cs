@@ -1,0 +1,96 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PacmanController : MonoBehaviour
+{
+    Vector3 directionToMove;
+    Rigidbody rb;
+    public float moveSpeed;
+
+    public List<GameObject> ghosts;
+    float ghostTimer;
+    public float ghostDuration;
+    public Material hologramMaterial;
+    Material ghostStartingMaterial;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            directionToMove = new Vector3(-1, 0, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            directionToMove = new Vector3(0, 0, -1);
+        }
+
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            directionToMove = new Vector3(1, 0, 0);
+        }
+
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            directionToMove = new Vector3(0, 0, 1);
+        }
+
+        rb.linearVelocity = directionToMove * moveSpeed;
+
+
+        ghostTimer += Time.deltaTime;
+
+        if (ghostTimer > ghostDuration)
+        {
+            DeactivatePowerup();
+        }
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.gameObject.CompareTag("wall"))
+        {
+            directionToMove = Vector3.zero;
+            rb.linearVelocity = Vector3.zero;
+            this.gameObject.transform.position = Vector3Int.RoundToInt(this.gameObject.transform.position);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("coin"))
+        {
+            Destroy(other.gameObject);
+        }
+
+        if (other.gameObject.CompareTag("bigCoin"))
+        {
+            ActivatePowerup();
+            Destroy(other.gameObject);
+        }
+    }
+
+    void ActivatePowerup()
+    {
+        ghostTimer = 0;
+
+        foreach (GameObject ghost in ghosts)
+        {
+            ghostStartingMaterial = ghost.GetComponent<MeshRenderer>().material = ghostStartingMaterial;
+            ghost.GetComponent<MeshRenderer>().material = hologramMaterial;
+        }
+    }
+
+    void DeactivatePowerup()
+    {
+        foreach (GameObject ghost in ghosts)
+        {
+            ghost.GetComponent<MeshRenderer>().material = ghostStartingMaterial;
+        }
+    }
+}
