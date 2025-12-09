@@ -8,14 +8,16 @@ public class PacmanController : MonoBehaviour
     public float moveSpeed;
 
     public List<GameObject> ghosts;
-    float ghostTimer;
+    float ghostTimer = 10;
     public float ghostDuration;
     public Material hologramMaterial;
     Material ghostStartingMaterial;
+    bool activated;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        ghostStartingMaterial = ghosts[0].GetComponent<MeshRenderer>().material;
     }
 
     void Update()
@@ -45,8 +47,9 @@ public class PacmanController : MonoBehaviour
 
         ghostTimer += Time.deltaTime;
 
-        if (ghostTimer > ghostDuration)
+        if (ghostTimer > ghostDuration && activated)
         {
+            activated = false;
             DeactivatePowerup();
         }
     }
@@ -78,10 +81,10 @@ public class PacmanController : MonoBehaviour
     void ActivatePowerup()
     {
         ghostTimer = 0;
+        activated = true;
 
         foreach (GameObject ghost in ghosts)
         {
-            ghostStartingMaterial = ghost.GetComponent<MeshRenderer>().material = ghostStartingMaterial;
             ghost.GetComponent<MeshRenderer>().material = hologramMaterial;
         }
     }
